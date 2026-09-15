@@ -1,0 +1,17 @@
+# Opting into Homebrew renders the tap workflow with names substituted.
+[answers]
+project_name = "demo"
+with_homebrew = true
+
+[expect]
+files = [".github/workflows/update-tap.yml"]
+
+[expect.contains]
+".github/workflows/update-tap.yml" = [
+  "FORMULA_NAME: demo",
+  "Release tag to publish to nnutter/homebrew-tap",
+  "${{ github.event.release.tag_name }}",
+]
+
+[expect.lacks]
+".github/workflows/update-tap.yml" = ["{{ formula_name }}", "{% raw %}"]
