@@ -1,0 +1,12 @@
+# Renders without the Homebrew workflow by default.
+[answers]
+project_name = "demo"
+
+[expect]
+files = ["mise.toml", "lefthook.toml", "go.mod", "LICENSE", ".github/workflows/ci.yml"]
+absent = [".github/workflows/update-tap.yml"]
+
+[expect.contains]
+"go.mod" = ['module github.com/nnutter/demo', 'go 1.27.0']
+"mise.toml" = ['go = "1.27.0"']
+"LICENSE" = ["Copyright (c) 2026 Nathan Nutter"]

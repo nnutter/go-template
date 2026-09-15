@@ -1,0 +1,19 @@
+[tools]
+"ubi:noirbizarre/git-tpl" = "0.13.0"
+lefthook = "2.1.14"
+
+[tasks.all]
+description = "Run lint and tests"
+depends = ["lint", "test"]
+
+[tasks.install-hooks]
+description = "Install Lefthook git hooks"
+run = "lefthook install"
+
+[tasks.lint]
+description = "Lint the template (manifest and rendering diagnostics)"
+run = "git tpl lint"
+
+[tasks.test]
+description = "Run the template test suite"
+run = "git tpl test"
