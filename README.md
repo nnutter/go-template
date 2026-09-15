@@ -41,8 +41,8 @@ git tpl merge
 ## Develop
 
 ```sh
-git tpl lint   # manifest + rendering diagnostics
-git tpl test   # tests/*.toml cases
+mise run lint   # manifest + rendering diagnostics
+mise run test   # tests/*.toml cases
 ```
 
 ## Publish
