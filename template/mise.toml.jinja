@@ -28,6 +28,10 @@ run = "go test -coverprofile=coverage.out -covermode=atomic ./... && go tool cov
 description = "Install Lefthook git hooks"
 run = "go tool lefthook install"
 
+[tasks.refresh-template]
+description = "Refresh from template"
+run = "git tpl update && git tpl merge"
+
 [tasks.pre-commit]
 description = "Format staged files"
 usage = 'arg "[staged_files]" var=#true'
@@ -128,7 +132,7 @@ run = "go tool gitleaks dir --verbose --redact ."
 
 [tasks.lint-go-check-sumtype]
 description = "Check sealed sum-type switches for exhaustiveness"
-run = "go tool go-check-sumtype ./..."
+run = "go tool go-check-sumtype -default-signifies-exhaustive=false -include-shared-interfaces ./..."
 
 [tasks.lint-go-vet]
 description = "Run go vet static analysis"
