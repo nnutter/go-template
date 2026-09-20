@@ -32,6 +32,8 @@ mise run install-hooks
 
 ```sh
 # Later, when this template moves on
+mise run refresh-template
+# or step by step:
 git tpl status
 git tpl update
 git tpl diff

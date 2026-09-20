@@ -28,6 +28,10 @@ run = "go test -coverprofile=coverage.out -covermode=atomic ./... && go tool cov
 description = "Install Lefthook git hooks"
 run = "go tool lefthook install"
 
+[tasks.refresh-template]
+description = "Refresh from template"
+run = "git tpl update && git tpl merge"
+
 [tasks.pre-commit]
 description = "Format staged files"
 usage = 'arg "[staged_files]" var=#true'
