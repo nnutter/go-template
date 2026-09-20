@@ -128,7 +128,7 @@ run = "go tool gitleaks dir --verbose --redact ."
 
 [tasks.lint-go-check-sumtype]
 description = "Check sealed sum-type switches for exhaustiveness"
-run = "go tool go-check-sumtype ./..."
+run = "go tool go-check-sumtype -default-signifies-exhaustive=false -include-shared-interfaces ./..."
 
 [tasks.lint-go-vet]
 description = "Run go vet static analysis"
