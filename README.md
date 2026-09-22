@@ -8,7 +8,7 @@ Git history are the template author's side.
 
 | File | How |
 |---|---|
-| `mise.toml` | Templated (`go` version) — fix/test/lint task graph |
+| `mise.toml` | Templated (`go` version) — fix/test/lint task graph plus `on-start`/`on-edit`/`on-stop` agent hook tasks (for Pi's mise-hooks extension) |
 | `lefthook.toml` | Verbatim — pre-commit formatting hook |
 | `go.mod` | Templated (`module`, `go`) — tool dependencies only |
 | `.github/workflows/ci.yml` | Verbatim — fixers, tests, govulncheck |
