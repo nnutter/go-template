@@ -3,8 +3,8 @@
 project_name = "demo"
 
 [expect]
-files = ["mise.toml", "lefthook.toml", "go.mod", "LICENSE", ".github/workflows/ci.yml"]
-absent = [".github/workflows/update-tap.yml"]
+files = ["mise.toml", "lefthook.toml", "go.mod", "LICENSE", ".github/workflows/ci.yaml"]
+absent = [".github/workflows/update-tap.yaml"]
 
 [expect.contains]
 "go.mod" = ['module github.com/nnutter/demo', 'go 1.27.0']
