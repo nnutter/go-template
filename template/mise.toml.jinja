@@ -30,11 +30,10 @@ run = "git tpl update && git tpl merge"
 [tasks.pre-commit]
 description = "Format staged files"
 usage = 'arg "[staged_files]" var=#true'
-run = '''
-#!/usr/bin/env bash
-go tool gitleaks git --redact --pre-commit --staged
-mise run fixers ${usage_staged_files}
-'''
+run = [
+  "go tool gitleaks git --redact --pre-commit --staged",
+  "mise run fixers ${usage_staged_files}",
+]
 
 [tasks.tests]
 alias = "test"
@@ -48,14 +47,13 @@ run = "go test -cover ./..."
 [tasks.fixers]
 alias = "fix"
 usage = 'arg "[staged_files]" var=#true'
-run = '''
-#!/usr/bin/env bash
-mise run fix-go-mod-tidy
-mise run fix-gofumpt ${usage_staged_files}
-mise run fix-goimports ${usage_staged_files}
-mise run fix-go-fix ${usage_staged_files}
-mise run fix-testifylint
-'''
+run = [
+  "mise run fix-go-mod-tidy",
+  "mise run fix-gofumpt ${usage_staged_files}",
+  "mise run fix-goimports ${usage_staged_files}",
+  "mise run fix-go-fix ${usage_staged_files}",
+  "mise run fix-testifylint",
+]
 
 [tasks.fix-gofumpt]
 description = "Run code formatting tools"
@@ -163,9 +161,8 @@ run = [{ task = "all" }]
 [tasks.on-stop]
 description = "Pi mise-hooks: fix edited files, then test and lint"
 usage = 'arg "[staged_files]" var=#true'
-run = '''
-#!/usr/bin/env bash
-mise run fixers ${usage_staged_files}
-mise run tests
-mise run linters
-'''
+run = [
+  "mise run fixers ${usage_staged_files}",
+  "mise run tests",
+  "mise run linters",
+]
