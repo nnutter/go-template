@@ -7,12 +7,7 @@ go = "{{ go_version }}"
 
 [tasks.all]
 description = "Run fixers, tests, and linters"
-run = '''
-#!/usr/bin/env bash
-mise run fixers
-mise run tests
-mise run linters
-'''
+run = [{ task = "fixers" }, { task = "tests" }, { task = "linters" }]
 
 [tasks.ci-tests]
 alias = "test"
@@ -104,19 +99,18 @@ go tool testifylint -fix ${usage_staged_files:-.}
 
 [tasks.linters]
 alias = "static-analysis"
-run = '''
-#!/usr/bin/env bash
-mise run lint-constable
-mise run lint-errcheck
-mise run lint-gitleaks
-mise run lint-go-check-sumtype
-mise run lint-go-vet
-mise run lint-gosec
-mise run lint-govulncheck
-mise run lint-nilaway
-mise run lint-staticcheck
-mise run lint-testifylint
-'''
+run = [
+  { task = "lint-constable" },
+  { task = "lint-errcheck" },
+  { task = "lint-gitleaks" },
+  { task = "lint-go-check-sumtype" },
+  { task = "lint-go-vet" },
+  { task = "lint-gosec" },
+  { task = "lint-govulncheck" },
+  { task = "lint-nilaway" },
+  { task = "lint-staticcheck" },
+  { task = "lint-testifylint" },
+]
 
 [tasks.lint-constable]
 description = "Checks nonmutating directives"
@@ -164,7 +158,7 @@ run = "go tool testifylint ./..."
 
 [tasks.on-start]
 description = "Pi mise-hooks: run fixers, tests, and linters before agent starts"
-run = "mise run all"
+run = [{ task = "all" }]
 
 [tasks.on-stop]
 description = "Pi mise-hooks: fix edited files, then test and lint"
