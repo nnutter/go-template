@@ -4,14 +4,14 @@ project_name = "demo"
 with_homebrew = true
 
 [expect]
-files = [".github/workflows/update-tap.yml"]
+files = [".github/workflows/update-tap.yaml"]
 
 [expect.contains]
-".github/workflows/update-tap.yml" = [
+".github/workflows/update-tap.yaml" = [
   "FORMULA_NAME: demo",
   "Release tag to publish to nnutter/homebrew-tap",
   "${{ github.event.release.tag_name }}",
 ]
 
 [expect.lacks]
-".github/workflows/update-tap.yml" = ["{{ formula_name }}", "{% raw %}"]
+".github/workflows/update-tap.yaml" = ["{{ formula_name }}", "{% raw %}"]
