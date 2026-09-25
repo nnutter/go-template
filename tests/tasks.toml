@@ -1,0 +1,16 @@
+# Renders a project and proves every mise task works, including the
+# file-arg regressions: `go fix` wants packages (not multi-dir file
+# lists) and fixers must ignore non-Go files from agent hooks.
+git = true
+
+[answers]
+project_name = "demo"
+
+[expect]
+files = ["mise.toml", "go.mod", "lefthook.toml"]
+
+[expect.contains]
+"mise.toml" = ['go = "1.27.0"']
+
+[commands]
+rendered = ["{{ env.TEMPLATE_ROOT }}/tests/scripts/verify-tasks.sh"]
