@@ -1,6 +1,7 @@
 [tools]
 "ubi:noirbizarre/git-tpl" = "0.13.0"
 hk = "2.8.0"
+"go:github.com/nnutter/git-review" = "0.8.1"
 
 [tasks.all]
 description = "Run lint and tests"
