@@ -128,4 +128,30 @@ mise run all
 mise run on-start
 mise run on-stop main.go
 
+step "refresh-template pulls and merges a template change"
+# Use a throwaway clone of the template so the probe commit never touches
+# TEMPLATE_ROOT. git-tpl refuses to commit unless user.name and user.email
+# are set in git config; environment variables such as GIT_AUTHOR_NAME do
+# not satisfy that check, and CI runners have no global identity. Set the
+# identity in both repos' local config.
+refresh_dir=$(mktemp -d)
+git clone -q "$TEMPLATE_ROOT" "$refresh_dir/template"
+git -C "$refresh_dir/template" config user.name test
+git -C "$refresh_dir/template" config user.email test@example.invalid
+mkdir "$refresh_dir/project"
+(
+  cd "$refresh_dir/project"
+  git init -q
+  git config user.name test
+  git config user.email test@example.invalid
+  git commit -q --allow-empty -m init
+  git tpl init --defaults --answer project_name=demo "$refresh_dir/template" .
+  mise trust -q
+  echo "# refreshed" >> "$refresh_dir/template/template/LICENSE.jinja"
+  git -C "$refresh_dir/template" commit -qam "probe: change LICENSE"
+  mise run refresh-template
+  grep -qx '# refreshed' LICENSE
+)
+rm -rf "$refresh_dir"
+
 echo "ALL TASKS OK"
