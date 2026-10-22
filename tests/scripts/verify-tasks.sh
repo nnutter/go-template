@@ -93,6 +93,13 @@ mise tasks deps on-stop
 mise tasks deps linters
 mise tasks deps fixers
 
+step "commit-msg hook adds a Change-Id"
+msg=$(mktemp)
+printf 'Subject\n' > "$msg"
+mise exec -- hk run commit-msg "$msg"
+grep -q '^Change-Id: ' "$msg"
+rm -f "$msg"
+
 step "linters (except lint-gitleaks)"
 # lint-gitleaks is excluded: gitleaks v8.30.1 (latest) depends on
 # mholt/archives@v0.1.2, which does not compile under Go 1.27
