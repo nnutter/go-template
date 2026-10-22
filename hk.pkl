@@ -1,0 +1,10 @@
+amends "package://github.com/jdx/hk/releases/download/v2.8.0/hk@2.8.0#/Config.pkl"
+
+hooks {
+  ["pre-commit"] {
+    steps {
+      ["lint"] { check = "mise run lint" }
+      ["test"] { check = "mise run test" }
+    }
+  }
+}
