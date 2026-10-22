@@ -70,8 +70,18 @@ mise run tests
 mise run ci-tests
 mise run coverage
 
+step "regression: install-hooks replaces a pre-existing Lefthook hook"
+hooks_dir=$(git rev-parse --git-path hooks)
+mkdir -p "$hooks_dir"
+printf '#!/bin/sh\n# LEFTHOOK\n' > "$hooks_dir/pre-commit"
+mise run install-hooks
+if grep -qs LEFTHOOK "$hooks_dir/pre-commit"; then
+  echo "lefthook hook survived install-hooks" >&2
+  exit 1
+fi
+
 step "hooks and task wiring"
-# install-hooks runs lefthook; the rest of this section proves every task
+# install-hooks runs hk; the rest of this section proves every task
 # is defined and wired without executing the gitleaks chain (see below).
 mise run install-hooks
 mise tasks ls

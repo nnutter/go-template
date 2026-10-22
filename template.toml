@@ -1,5 +1,5 @@
 name = "go-app"
-description = "Go app scaffold: mise tasks, lefthook, CI, tool-pinned go.mod, optional Homebrew tap workflow"
+description = "Go app scaffold: mise tasks, hk, CI, tool-pinned go.mod, optional Homebrew tap workflow"
 note = "Next: go mod tidy, then mise run install-hooks"
 
 [questions.project_name]

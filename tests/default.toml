@@ -3,7 +3,7 @@
 project_name = "demo"
 
 [expect]
-files = ["mise.toml", "lefthook.toml", "go.mod", "LICENSE", ".github/workflows/ci.yaml"]
+files = ["mise.toml", "hk.pkl", "go.mod", "LICENSE", ".github/workflows/ci.yaml"]
 absent = [".github/workflows/update-tap.yaml"]
 
 [expect.contains]
