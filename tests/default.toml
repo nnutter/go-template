@@ -7,6 +7,6 @@ files = ["mise.toml", "lefthook.toml", "go.mod", "LICENSE", ".github/workflows/c
 absent = [".github/workflows/update-tap.yaml"]
 
 [expect.contains]
-"go.mod" = ['module github.com/nnutter/demo', 'go 1.27.0']
-"mise.toml" = ['go = "1.27.0"']
+"go.mod" = ['module github.com/nnutter/demo', 'go 1.27.3']
+"mise.toml" = ['go = "1.27.3"']
 "LICENSE" = ["Copyright (c) 2026 Nathan Nutter"]

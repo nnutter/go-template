@@ -10,7 +10,7 @@ project_name = "demo"
 files = ["mise.toml", "go.mod", "lefthook.toml"]
 
 [expect.contains]
-"mise.toml" = ['go = "1.27.0"']
+"mise.toml" = ['go = "1.27.3"']
 
 [commands]
 rendered = ["{{ env.TEMPLATE_ROOT }}/tests/scripts/verify-tasks.sh"]
