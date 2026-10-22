@@ -100,15 +100,10 @@ mise exec -- hk run commit-msg "$msg"
 grep -q '^Change-Id: ' "$msg"
 rm -f "$msg"
 
-step "linters (except lint-gitleaks)"
-# lint-gitleaks is excluded: gitleaks v8.30.1 (latest) depends on
-# mholt/archives@v0.1.2, which does not compile under Go 1.27
-# (rarReader/WriteTo mismatch) -- an upstream breakage outside this
-# template. The rendered CI (ci.yaml) does not run it either. Everything
-# that transitively needs it (pre-commit, linters, all, on-stop,
-# on-start) is covered above by deps/validate wiring checks instead.
+step "linters"
 mise run lint-constable
 mise run lint-errcheck
+mise run lint-gitleaks
 mise run lint-go-check-sumtype
 mise run lint-go-vet
 mise run lint-gosec
@@ -117,4 +112,4 @@ mise run lint-nilaway
 mise run lint-staticcheck
 mise run lint-testifylint
 
-echo "ALL TASKS OK (pre-commit, lint-gitleaks, linters, all, on-stop, on-start need gitleaks, which is upstream-broken under Go 1.27; their wiring is checked via deps/validate)"
+echo "ALL TASKS OK"
