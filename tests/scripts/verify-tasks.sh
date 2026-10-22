@@ -100,6 +100,25 @@ mise exec -- hk run commit-msg "$msg"
 grep -q '^Change-Id: ' "$msg"
 rm -f "$msg"
 
+step "pre-commit blocks staged secrets"
+# Split the key so this script does not contain a literal secret that the
+# template's own pre-commit hook would flag.
+fake_key="AKIA""Q7M3XNB5TRW2KHLD"
+printf 'aws = "%s"\n' "$fake_key" > secret.txt
+git add secret.txt
+if mise run pre-commit secret.txt; then
+  echo "pre-commit did not block a staged secret" >&2
+  exit 1
+fi
+git rm -q --cached secret.txt
+rm -f secret.txt
+
+step "pre-commit formats staged Go files"
+printf 'package  main\n\nfunc   F( ) {}\n' > fmt_me.go
+git add fmt_me.go main.go sub/sub.go main_test.go
+mise run pre-commit fmt_me.go main.go sub/sub.go main_test.go
+grep -qx 'func F() {}' fmt_me.go
+
 step "linters"
 mise run lint-constable
 mise run lint-errcheck
