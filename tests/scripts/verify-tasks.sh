@@ -120,15 +120,12 @@ mise run pre-commit fmt_me.go main.go sub/sub.go main_test.go
 grep -qx 'func F() {}' fmt_me.go
 
 step "linters"
-mise run lint-constable
-mise run lint-errcheck
-mise run lint-gitleaks
-mise run lint-go-check-sumtype
-mise run lint-go-vet
-mise run lint-gosec
-mise run lint-govulncheck
-mise run lint-nilaway
-mise run lint-staticcheck
-mise run lint-testifylint
+# Runs every lint-* task through the aggregate, so each one is exercised.
+mise run linters
+
+step "aggregate and agent-hook tasks"
+mise run all
+mise run on-start
+mise run on-stop main.go
 
 echo "ALL TASKS OK"
