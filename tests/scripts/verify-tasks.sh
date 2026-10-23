@@ -70,8 +70,18 @@ mise run tests
 mise run ci-tests
 mise run coverage
 
+step "regression: install-hooks replaces a pre-existing Lefthook hook"
+hooks_dir=$(git rev-parse --git-path hooks)
+mkdir -p "$hooks_dir"
+printf '#!/bin/sh\n# LEFTHOOK\n' > "$hooks_dir/pre-commit"
+mise run install-hooks
+if grep -qs LEFTHOOK "$hooks_dir/pre-commit"; then
+  echo "lefthook hook survived install-hooks" >&2
+  exit 1
+fi
+
 step "hooks and task wiring"
-# install-hooks runs lefthook; the rest of this section proves every task
+# install-hooks runs hk; the rest of this section proves every task
 # is defined and wired without executing the gitleaks chain (see below).
 mise run install-hooks
 mise tasks ls
@@ -83,21 +93,65 @@ mise tasks deps on-stop
 mise tasks deps linters
 mise tasks deps fixers
 
-step "linters (except lint-gitleaks)"
-# lint-gitleaks is excluded: gitleaks v8.30.1 (latest) depends on
-# mholt/archives@v0.1.2, which does not compile under Go 1.27
-# (rarReader/WriteTo mismatch) -- an upstream breakage outside this
-# template. The rendered CI (ci.yaml) does not run it either. Everything
-# that transitively needs it (pre-commit, linters, all, on-stop,
-# on-start) is covered above by deps/validate wiring checks instead.
-mise run lint-constable
-mise run lint-errcheck
-mise run lint-go-check-sumtype
-mise run lint-go-vet
-mise run lint-gosec
-mise run lint-govulncheck
-mise run lint-nilaway
-mise run lint-staticcheck
-mise run lint-testifylint
+step "commit-msg hook adds a Change-Id"
+msg=$(mktemp)
+printf 'Subject\n' > "$msg"
+mise exec -- hk run commit-msg "$msg"
+grep -q '^Change-Id: ' "$msg"
+rm -f "$msg"
 
-echo "ALL TASKS OK (pre-commit, lint-gitleaks, linters, all, on-stop, on-start need gitleaks, which is upstream-broken under Go 1.27; their wiring is checked via deps/validate)"
+step "pre-commit blocks staged secrets"
+# Split the key so this script does not contain a literal secret that the
+# template's own pre-commit hook would flag.
+fake_key="AKIA""Q7M3XNB5TRW2KHLD"
+printf 'aws = "%s"\n' "$fake_key" > secret.txt
+git add secret.txt
+if mise run pre-commit secret.txt; then
+  echo "pre-commit did not block a staged secret" >&2
+  exit 1
+fi
+git rm -q --cached secret.txt
+rm -f secret.txt
+
+step "pre-commit formats staged Go files"
+printf 'package  main\n\nfunc   F( ) {}\n' > fmt_me.go
+git add fmt_me.go main.go sub/sub.go main_test.go
+mise run pre-commit fmt_me.go main.go sub/sub.go main_test.go
+grep -qx 'func F() {}' fmt_me.go
+
+step "linters"
+# Runs every lint-* task through the aggregate, so each one is exercised.
+mise run linters
+
+step "aggregate and agent-hook tasks"
+mise run all
+mise run on-start
+mise run on-stop main.go
+
+step "refresh-template pulls and merges a template change"
+# Use a throwaway clone of the template so the probe commit never touches
+# TEMPLATE_ROOT. git-tpl refuses to commit unless user.name and user.email
+# are set in git config; environment variables such as GIT_AUTHOR_NAME do
+# not satisfy that check, and CI runners have no global identity. Set the
+# identity in both repos' local config.
+refresh_dir=$(mktemp -d)
+git clone -q "$TEMPLATE_ROOT" "$refresh_dir/template"
+git -C "$refresh_dir/template" config user.name test
+git -C "$refresh_dir/template" config user.email test@example.invalid
+mkdir "$refresh_dir/project"
+(
+  cd "$refresh_dir/project"
+  git init -q
+  git config user.name test
+  git config user.email test@example.invalid
+  git commit -q --allow-empty -m init
+  git tpl init --defaults --answer project_name=demo "$refresh_dir/template" .
+  mise trust -q
+  echo "# refreshed" >> "$refresh_dir/template/template/LICENSE.jinja"
+  git -C "$refresh_dir/template" commit -qam "probe: change LICENSE"
+  mise run refresh-template
+  grep -qx '# refreshed' LICENSE
+)
+rm -rf "$refresh_dir"
+
+echo "ALL TASKS OK"

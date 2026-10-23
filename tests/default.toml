@@ -3,10 +3,11 @@
 project_name = "demo"
 
 [expect]
-files = ["mise.toml", "lefthook.toml", "go.mod", "LICENSE", ".github/workflows/ci.yaml"]
+files = ["mise.toml", "hk.pkl", "go.mod", "LICENSE", ".github/workflows/ci.yaml"]
 absent = [".github/workflows/update-tap.yaml"]
 
 [expect.contains]
-"go.mod" = ['module github.com/nnutter/demo', 'go 1.27.0']
-"mise.toml" = ['go = "1.27.0"']
+"go.mod" = ['module github.com/nnutter/demo', 'go 1.27.3']
+"mise.toml" = ['go = "1.27.3"', '"go:github.com/nnutter/git-review" = "0.8.1"']
+"hk.pkl" = ['git-review commit-msg']
 "LICENSE" = ["Copyright (c) 2026 Nathan Nutter"]

@@ -1,5 +1,5 @@
 name = "go-app"
-description = "Go app scaffold: mise tasks, lefthook, CI, tool-pinned go.mod, optional Homebrew tap workflow"
+description = "Go app scaffold: mise tasks, hk, CI, tool-pinned go.mod, optional Homebrew tap workflow"
 note = "Next: go mod tidy, then mise run install-hooks"
 
 [questions.project_name]
@@ -19,9 +19,9 @@ default = "github.com/nnutter/{{ project_name }}"
 [questions.go_version]
 type = "string"
 prompt = "Go version"
-default = "1.27.0"
+default = "1.27.3"
 pattern = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
-message = "must look like 1.27.0"
+message = "must look like 1.27.3"
 
 [questions.copyright_holder]
 type = "string"

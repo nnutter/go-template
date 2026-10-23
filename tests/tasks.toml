@@ -7,10 +7,10 @@ git = true
 project_name = "demo"
 
 [expect]
-files = ["mise.toml", "go.mod", "lefthook.toml"]
+files = ["mise.toml", "go.mod", "hk.pkl"]
 
 [expect.contains]
-"mise.toml" = ['go = "1.27.0"']
+"mise.toml" = ['go = "1.27.3"']
 
 [commands]
 rendered = ["{{ env.TEMPLATE_ROOT }}/tests/scripts/verify-tasks.sh"]
