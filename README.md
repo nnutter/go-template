@@ -19,11 +19,11 @@ Git history are the template author's side.
 
 ```sh
 # New project
-git tpl init git@github.com:nnutter/go-template.git my-app --init
+git tpl init git@github.com:nnutter/go-template my-app --init
 
 # Existing project (adopts git-tpl, merges by content)
 cd my-app
-git tpl init git@github.com:nnutter/go-template.git
+git tpl init git@github.com:nnutter/go-template
 
 # After init in the new project
 go mod tidy
@@ -50,7 +50,7 @@ mise run test   # tests/*.toml cases
 ## Publish
 
 ```sh
-git remote add origin git@github.com:nnutter/go-template.git
+git remote add origin git@github.com:nnutter/go-template
 git push -u origin main
 gh repo edit --add-topic git-tpl
 ```
