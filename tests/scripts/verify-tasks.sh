@@ -55,6 +55,41 @@ mise run fix-goimports README.md
 mise run fix-go-fix README.md
 mise run fix-testifylint README.md
 
+step "regression: non-Go files are a no-op for Go check tasks"
+mise run check-gofumpt README.md
+mise run check-goimports README.md
+mise run check-go-fix README.md
+mise run check-testifylint README.md
+
+step "regression: check reports diffs and does not write"
+printf 'package  main\n\nfunc   G( ) {}\n' > dirty_fmt.go
+cp dirty_fmt.go dirty_fmt.go.bak
+if mise run check-gofumpt ./dirty_fmt.go; then
+  echo "check-gofumpt did not report a diff" >&2
+  exit 1
+fi
+cmp -s dirty_fmt.go dirty_fmt.go.bak
+rm -f dirty_fmt.go dirty_fmt.go.bak
+
+printf 'package main\n\nimport (\n\t"fmt"\n\t"os"\n)\n\nfunc H() { fmt.Println("x") }\n' > dirty_imp.go
+cp dirty_imp.go dirty_imp.go.bak
+if mise run check-goimports ./dirty_imp.go; then
+  echo "check-goimports did not report a diff" >&2
+  exit 1
+fi
+cmp -s dirty_imp.go dirty_imp.go.bak
+rm -f dirty_imp.go dirty_imp.go.bak
+
+mkdir -p fixdir
+printf 'package fixdir\n\nvar y interface{}\n\nfunc use() { _ = y }\n' > fixdir/dirty_fix.go
+cp fixdir/dirty_fix.go fixdir/dirty_fix.go.bak
+if mise run check-go-fix ./fixdir/dirty_fix.go; then
+  echo "check-go-fix did not report a diff" >&2
+  exit 1
+fi
+cmp -s fixdir/dirty_fix.go fixdir/dirty_fix.go.bak
+rm -rf fixdir
+
 step "regression: mixed Go and non-Go files"
 mise run fix README.md main.go
 

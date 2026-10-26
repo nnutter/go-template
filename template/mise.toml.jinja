@@ -170,18 +170,97 @@ go tool testifylint -fix $pkgs
 ###############
 
 [tasks.check]
+usage = 'arg "[staged_files]" var=#true'
 run = [
-  { task = "check-constable" },
-  { task = "check-errcheck" },
-  { task = "check-gitleaks" },
-  { task = "check-go-check-sumtype" },
-  { task = "check-go-vet" },
-  { task = "check-gosec" },
-  { task = "check-govulncheck" },
-  { task = "check-nilaway" },
-  { task = "check-staticcheck" },
-  { task = "check-testifylint" },
+  "mise run check-go-mod-tidy",
+  "mise run check-gofumpt ${usage_staged_files}",
+  "mise run check-goimports ${usage_staged_files}",
+  "mise run check-go-fix ${usage_staged_files}",
+  "mise run check-testifylint ${usage_staged_files}",
+  "mise run check-constable",
+  "mise run check-errcheck",
+  "mise run check-gitleaks",
+  "mise run check-go-check-sumtype",
+  "mise run check-go-vet",
+  "mise run check-gosec",
+  "mise run check-govulncheck",
+  "mise run check-nilaway",
+  "mise run check-staticcheck",
 ]
+
+[tasks.check-gofumpt]
+description = "Report gofumpt diffs without writing"
+usage = 'arg "[staged_files]" var=#true'
+run = '''
+#!/usr/bin/env bash
+set -eo pipefail
+if [ -z "${usage_staged_files:-}" ]; then
+  go tool gofumpt -d .
+  exit 0
+fi
+go_files=""
+for f in ${usage_staged_files}; do
+  case "$f" in *.go) go_files="$go_files $f" ;; esac
+done
+[ -z "$go_files" ] && exit 0
+# shellcheck disable=SC2086
+go tool gofumpt -d $go_files
+'''
+
+[tasks.check-goimports]
+description = "Report goimports diffs without writing"
+usage = 'arg "[staged_files]" var=#true'
+run = '''
+#!/usr/bin/env bash
+set -eo pipefail
+module=$(go list -m)
+if [ -z "${usage_staged_files:-}" ]; then
+  report=$(go tool goimports -d -local "$module" .)
+else
+  go_files=""
+  for f in ${usage_staged_files}; do
+    case "$f" in *.go) go_files="$go_files $f" ;; esac
+  done
+  [ -z "$go_files" ] && exit 0
+  # shellcheck disable=SC2086
+  report=$(go tool goimports -d -local "$module" $go_files)
+fi
+if [ -n "$report" ]; then
+  printf '%s\n' "$report"
+  exit 1
+fi
+'''
+
+[tasks.check-go-fix]
+description = "Report go fix diffs without writing"
+usage = 'arg "[staged_files]" var=#true'
+run = '''
+#!/usr/bin/env bash
+set -eo pipefail
+if [ -z "${usage_staged_files:-}" ]; then
+  go fix -diff ./...
+  exit 0
+fi
+dirs=""
+for f in ${usage_staged_files}; do
+  case "$f" in
+    *.go)
+      d=$(dirname "$f")
+      case "$d" in ./*|/*) ;; *) d="./$d" ;; esac
+      dirs="$dirs $d"
+      ;;
+  esac
+done
+[ -z "$dirs" ] && exit 0
+# shellcheck disable=SC2086
+pkgs=$(printf '%s\n' $dirs | sort -u)
+# shellcheck disable=SC2086
+go fix -diff $pkgs
+'''
+
+[tasks.check-go-mod-tidy]
+description = "Report go.mod tidy diffs without writing"
+run = "go mod tidy -diff"
 
 [tasks.check-constable]
 description = "Checks nonmutating directives"
@@ -221,7 +300,30 @@ run = "go tool staticcheck ./..."
 
 [tasks.check-testifylint]
 description = "Run testifylint static analysis"
-run = "go tool testifylint ./..."
+usage = 'arg "[staged_files]" var=#true'
+run = '''
+#!/usr/bin/env bash
+set -eo pipefail
+if [ -z "${usage_staged_files:-}" ]; then
+  go tool testifylint ./...
+  exit 0
+fi
+dirs=""
+for f in ${usage_staged_files}; do
+  case "$f" in
+    *.go)
+      d=$(dirname "$f")
+      case "$d" in ./*|/*) ;; *) d="./$d" ;; esac
+      dirs="$dirs $d"
+      ;;
+  esac
+done
+[ -z "$dirs" ] && exit 0
+# shellcheck disable=SC2086
+pkgs=$(printf '%s\n' $dirs | sort -u)
+# shellcheck disable=SC2086
+go tool testifylint $pkgs
+'''
 
 #####################
 # Agent Hooks       #
