@@ -1,6 +1,6 @@
 # Renders a project and proves every mise task works, including the
 # file-arg regressions: `go fix` wants packages (not multi-dir file
-# lists) and fixers must ignore non-Go files from agent hooks.
+# lists) and fix must ignore non-Go files from agent hooks.
 git = true
 
 [answers]

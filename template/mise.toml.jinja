@@ -9,11 +9,10 @@ hk = "2.8.0"
 #####################
 
 [tasks.all]
-description = "Run fixers, tests, and linters"
-run = [{ task = "fixers" }, { task = "tests" }, { task = "linters" }]
+description = "Run fix, test, and check"
+run = [{ task = "fix" }, { task = "test" }, { task = "check" }]
 
-[tasks.ci-tests]
-alias = "test"
+[tasks.ci-test]
 description = "Run tests (with the race detector)"
 run = "go test -race -shuffle=on ./..."
 
@@ -49,11 +48,10 @@ description = "Format staged files"
 usage = 'arg "[staged_files]" var=#true'
 run = [
   "go tool gitleaks git --redact --pre-commit --staged",
-  "mise run fixers ${usage_staged_files}",
+  "mise run fix ${usage_staged_files}",
 ]
 
-[tasks.tests]
-alias = "test"
+[tasks.test]
 description = "Run tests (with the race detector)"
 run = "go test -cover ./..."
 
@@ -61,8 +59,7 @@ run = "go test -cover ./..."
 # Fix Tasks #
 #############
 
-[tasks.fixers]
-alias = "fix"
+[tasks.fix]
 usage = 'arg "[staged_files]" var=#true'
 run = [
   "mise run fix-go-mod-tidy",
@@ -168,62 +165,61 @@ pkgs=$(printf '%s\n' $dirs | sort -u)
 go tool testifylint -fix $pkgs
 '''
 
-##############
-# Lint Tasks #
-##############
+###############
+# Check Tasks #
+###############
 
-[tasks.linters]
-alias = "static-analysis"
+[tasks.check]
 run = [
-  { task = "lint-constable" },
-  { task = "lint-errcheck" },
-  { task = "lint-gitleaks" },
-  { task = "lint-go-check-sumtype" },
-  { task = "lint-go-vet" },
-  { task = "lint-gosec" },
-  { task = "lint-govulncheck" },
-  { task = "lint-nilaway" },
-  { task = "lint-staticcheck" },
-  { task = "lint-testifylint" },
+  { task = "check-constable" },
+  { task = "check-errcheck" },
+  { task = "check-gitleaks" },
+  { task = "check-go-check-sumtype" },
+  { task = "check-go-vet" },
+  { task = "check-gosec" },
+  { task = "check-govulncheck" },
+  { task = "check-nilaway" },
+  { task = "check-staticcheck" },
+  { task = "check-testifylint" },
 ]
 
-[tasks.lint-constable]
+[tasks.check-constable]
 description = "Checks nonmutating directives"
 run = "go tool constable ./..."
 
-[tasks.lint-errcheck]
+[tasks.check-errcheck]
 description = "Check for unhandled errors"
 run = "go tool errcheck ./..."
 
-[tasks.lint-gitleaks]
+[tasks.check-gitleaks]
 description = "Scan the Git history for secrets"
 run = "go tool gitleaks dir --verbose --redact ."
 
-[tasks.lint-go-check-sumtype]
+[tasks.check-go-check-sumtype]
 description = "Check sealed sum-type switches for exhaustiveness"
 run = "go tool go-check-sumtype -default-signifies-exhaustive=false -include-shared-interfaces ./..."
 
-[tasks.lint-go-vet]
+[tasks.check-go-vet]
 description = "Run go vet static analysis"
 run = "go vet ./..."
 
-[tasks.lint-gosec]
+[tasks.check-gosec]
 description = "Run gosec static analysis"
 run = "go tool gosec -severity high -quiet ./..."
 
-[tasks.lint-govulncheck]
+[tasks.check-govulncheck]
 description = "Check for vulnerabilities"
 run = "go tool govulncheck ./..."
 
-[tasks.lint-nilaway]
+[tasks.check-nilaway]
 description = "Run nilaway on github.com/nnutter packages"
 run = "go tool nilaway -include-pkgs $(go list -m) ./..."
 
-[tasks.lint-staticcheck]
+[tasks.check-staticcheck]
 description = "Run staticcheck static analysis"
 run = "go tool staticcheck ./..."
 
-[tasks.lint-testifylint]
+[tasks.check-testifylint]
 description = "Run testifylint static analysis"
 run = "go tool testifylint ./..."
 
@@ -232,14 +228,14 @@ run = "go tool testifylint ./..."
 #####################
 
 [tasks.on-start]
-description = "Pi mise-hooks: run fixers, tests, and linters before agent starts"
+description = "Pi mise-hooks: run fix, test, and check before agent starts"
 run = [{ task = "all" }]
 
 [tasks.on-stop]
-description = "Pi mise-hooks: fix edited files, then test and lint"
+description = "Pi mise-hooks: fix edited files, then test and check"
 usage = 'arg "[staged_files]" var=#true'
 run = [
-  "mise run fixers ${usage_staged_files}",
-  "mise run tests",
-  "mise run linters",
+  "mise run fix ${usage_staged_files}",
+  "mise run test",
+  "mise run check",
 ]
