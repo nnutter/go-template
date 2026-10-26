@@ -49,25 +49,60 @@ mise run fix-go-fix ./main.go
 step "regression: files in different dirs to go fix"
 mise run fix-go-fix ./main.go ./sub/sub.go
 
-step "regression: non-Go files are a no-op for Go fixers"
+step "regression: non-Go files are a no-op for Go fix tasks"
 mise run fix-gofumpt README.md
 mise run fix-goimports README.md
 mise run fix-go-fix README.md
 mise run fix-testifylint README.md
 
-step "regression: mixed Go and non-Go files"
-mise run fixers README.md main.go
+step "regression: non-Go files are a no-op for Go check tasks"
+mise run check-gofumpt README.md
+mise run check-goimports README.md
+mise run check-go-fix README.md
+mise run check-testifylint README.md
 
-step "fixers"
+step "regression: check reports diffs and does not write"
+printf 'package  main\n\nfunc   G( ) {}\n' > dirty_fmt.go
+cp dirty_fmt.go dirty_fmt.go.bak
+if mise run check-gofumpt ./dirty_fmt.go; then
+  echo "check-gofumpt did not report a diff" >&2
+  exit 1
+fi
+cmp -s dirty_fmt.go dirty_fmt.go.bak
+rm -f dirty_fmt.go dirty_fmt.go.bak
+
+printf 'package main\n\nimport (\n\t"fmt"\n\t"os"\n)\n\nfunc H() { fmt.Println("x") }\n' > dirty_imp.go
+cp dirty_imp.go dirty_imp.go.bak
+if mise run check-goimports ./dirty_imp.go; then
+  echo "check-goimports did not report a diff" >&2
+  exit 1
+fi
+cmp -s dirty_imp.go dirty_imp.go.bak
+rm -f dirty_imp.go dirty_imp.go.bak
+
+mkdir -p fixdir
+printf 'package fixdir\n\nvar y interface{}\n\nfunc use() { _ = y }\n' > fixdir/dirty_fix.go
+cp fixdir/dirty_fix.go fixdir/dirty_fix.go.bak
+if mise run check-go-fix ./fixdir/dirty_fix.go; then
+  echo "check-go-fix did not report a diff" >&2
+  exit 1
+fi
+cmp -s fixdir/dirty_fix.go fixdir/dirty_fix.go.bak
+rm -rf fixdir
+
+step "regression: mixed Go and non-Go files"
+mise run fix README.md main.go
+
+step "fix"
 mise run fix-gofumpt
 mise run fix-goimports
 mise run fix-go-fix
 mise run fix-testifylint
-mise run fixers
+mise run fix
 
-step "tests"
-mise run tests
-mise run ci-tests
+step "test"
+mise run test
+mise run ci-test
 mise run coverage
 
 step "regression: install-hooks replaces a pre-existing Lefthook hook"
@@ -85,13 +120,11 @@ step "hooks and task wiring"
 # is defined and wired without executing the gitleaks chain (see below).
 mise run install-hooks
 mise tasks ls
-# (Not `mise tasks validate`: it flags the pre-existing shared `test`
-# alias on ci-tests/tests, which is out of scope for this suite.)
 mise tasks deps all
 mise tasks deps on-start
 mise tasks deps on-stop
-mise tasks deps linters
-mise tasks deps fixers
+mise tasks deps check
+mise tasks deps fix
 
 step "commit-msg hook adds a Change-Id"
 msg=$(mktemp)
@@ -119,9 +152,9 @@ git add fmt_me.go main.go sub/sub.go main_test.go
 mise run pre-commit fmt_me.go main.go sub/sub.go main_test.go
 grep -qx 'func F() {}' fmt_me.go
 
-step "linters"
-# Runs every lint-* task through the aggregate, so each one is exercised.
-mise run linters
+step "check"
+# Runs every check-* task through the aggregate, so each one is exercised.
+mise run check
 
 step "aggregate and agent-hook tasks"
 mise run all

@@ -8,10 +8,10 @@ Git history are the template author's side.
 
 | File | How |
 |---|---|
-| `mise.toml` | Templated (`go` version) — fix/test/lint task graph plus `on-start`/`on-stop` agent hook tasks (for Pi's mise-hooks extension) |
+| `mise.toml` | Templated (`go` version) — fix/test/check task graph plus `on-start`/`on-stop` agent hook tasks (for Pi's mise-hooks extension) |
 | `hk.pkl` | Verbatim — pre-commit formatting hook |
 | `go.mod` | Templated (`module`, `go`) — tool dependencies only |
-| `.github/workflows/ci.yaml` | Verbatim — fixers, tests, govulncheck |
+| `.github/workflows/ci.yaml` | Verbatim — fix, ci-test, govulncheck |
 | `LICENSE` | Templated (MIT holder + year) |
 | `.github/workflows/update-tap.yaml` | Only when `with_homebrew` is true — templated formula/tap names, Actions `${{ }}` kept intact via `{% raw %}` |
 
