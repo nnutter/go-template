@@ -1,6 +1,7 @@
 [tools]
 "ubi:noirbizarre/git-tpl" = "0.13.0"
 hk = "2.8.0"
+"github:swanysimon/mdlint" = "0.3.24"
 "go:github.com/nnutter/git-review" = "0.8.1"
 
 [tasks.all]
@@ -28,6 +29,60 @@ mise exec -- hk install --mise
 [tasks.lint]
 description = "Lint the template (manifest and rendering diagnostics)"
 run = "git tpl lint"
+
+[tasks.fix-mdlint]
+description = "Format and fix Markdown"
+usage = 'arg "[staged_files]" var=#true'
+run = '''
+#!/usr/bin/env bash
+set -eo pipefail
+if [ -z "${usage_staged_files:-}" ]; then
+  mdlint format
+  mdlint check --fix
+  exit 0
+fi
+md_files=""
+for f in ${usage_staged_files}; do
+  case "$f" in *.md) md_files="$md_files $f" ;; esac
+done
+[ -z "$md_files" ] && exit 0
+# shellcheck disable=SC2086
+mdlint format $md_files
+# shellcheck disable=SC2086
+mdlint check --fix $md_files
+'''
+
+[tasks.check-mdlint]
+description = "Check Markdown formatting and lint without writing"
+usage = 'arg "[staged_files]" var=#true'
+run = '''
+#!/usr/bin/env bash
+set -eo pipefail
+if [ -z "${usage_staged_files:-}" ]; then
+  mdlint format --check
+  mdlint check --no-fix
+  exit 0
+fi
+md_files=""
+for f in ${usage_staged_files}; do
+  case "$f" in *.md) md_files="$md_files $f" ;; esac
+done
+[ -z "$md_files" ] && exit 0
+# shellcheck disable=SC2086
+mdlint format --check $md_files
+# shellcheck disable=SC2086
+mdlint check --no-fix $md_files
+'''
+
+[tasks.fix]
+description = "Format and fix Markdown"
+usage = 'arg "[staged_files]" var=#true'
+run = "mise run fix-mdlint ${usage_staged_files}"
+
+[tasks.check]
+description = "Check Markdown formatting and lint without writing"
+usage = 'arg "[staged_files]" var=#true'
+run = "mise run check-mdlint ${usage_staged_files}"
 
 [tasks.test]
 description = "Run the template test suite"
