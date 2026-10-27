@@ -43,7 +43,7 @@ git tpl merge
 ## Develop
 
 ```sh
-mise run lint   # manifest + rendering diagnostics
+mise run check  # manifest + rendering diagnostics
 mise run test   # tests/*.toml cases
 ```
 

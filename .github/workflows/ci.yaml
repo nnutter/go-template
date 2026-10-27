@@ -27,8 +27,8 @@ jobs:
         with:
           version: 2026.8.5
 
-      - name: Run lint
-        run: mise run lint
+      - name: Run check
+        run: mise run check
 
       - name: Run rendering tests
         run: mise run test default with-brew

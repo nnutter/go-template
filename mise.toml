@@ -5,8 +5,8 @@ hk = "2.8.0"
 "go:github.com/nnutter/git-review" = "0.8.1"
 
 [tasks.all]
-description = "Run lint and tests"
-depends = ["lint", "test"]
+description = "Run template lint and tests"
+depends = ["check", "test"]
 
 [tasks.setup]
 description = "Install hk git hooks, replacing any Lefthook hook"
@@ -25,10 +25,6 @@ done
 # Use the mise-pinned hk: a bare `hk` can resolve to another binary on PATH.
 mise exec -- hk install --mise
 '''
-
-[tasks.lint]
-description = "Lint the template (manifest and rendering diagnostics)"
-run = "git tpl lint"
 
 [tasks.fix-mdlint]
 description = "Format and fix Markdown"
@@ -74,6 +70,13 @@ mdlint format --check $md_files
 mdlint check --no-fix $md_files
 '''
 
+[tasks.check-tpl]
+description = "Lint the template (manifest and rendering diagnostics)"
+usage = 'arg "[staged_files]" var=#true'
+# Template lint is repo-wide; staged files are accepted so the check
+# aggregate can forward them, but they are intentionally ignored.
+run = "git tpl lint"
+
 [tasks.fix]
 description = "Format and fix Markdown"
 usage = 'arg "[staged_files]" var=#true'
@@ -82,7 +85,10 @@ run = "mise run fix-mdlint ${usage_staged_files}"
 [tasks.check]
 description = "Check Markdown formatting and lint without writing"
 usage = 'arg "[staged_files]" var=#true'
-run = "mise run check-mdlint ${usage_staged_files}"
+run = [
+  "mise run check-mdlint ${usage_staged_files}",
+  "mise run check-tpl ${usage_staged_files}",
+]
 
 [tasks.test]
 description = "Run the template test suite"
