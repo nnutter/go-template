@@ -8,7 +8,7 @@ hk = "2.8.0"
 description = "Run lint and tests"
 depends = ["lint", "test"]
 
-[tasks.install-hooks]
+[tasks.setup]
 description = "Install hk git hooks, replacing any Lefthook hook"
 run = '''
 #!/usr/bin/env bash

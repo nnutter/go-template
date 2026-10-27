@@ -27,7 +27,7 @@ git tpl init git@github.com:nnutter/go-template
 
 # After init in the new project
 go mod tidy
-mise run install-hooks
+mise run setup
 ```
 
 ```sh
