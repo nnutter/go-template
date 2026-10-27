@@ -18,7 +18,7 @@ default = "github.com/nnutter/{{ project_name }}"
 
 [questions.go_version]
 type = "string"
-prompt = "Go version"
+prompt = "Minimum Go version"
 default = "1.27.3"
 pattern = "^[0-9]+\\.[0-9]+\\.[0-9]+$"
 message = "must look like 1.27.3"

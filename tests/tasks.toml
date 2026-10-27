@@ -10,7 +10,7 @@ project_name = "demo"
 files = ["mise.toml", "go.mod", "hk.pkl"]
 
 [expect.contains]
-"mise.toml" = ['go = "1.27.3"']
+"mise.toml" = ['go = "latest"']
 
 [commands]
 rendered = ["{{ env.TEMPLATE_ROOT }}/tests/scripts/verify-tasks.sh"]

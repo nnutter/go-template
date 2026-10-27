@@ -1,8 +1,8 @@
 [tools]
-"ubi:noirbizarre/git-tpl" = "0.13.0"
-hk = "2.8.0"
-"github:swanysimon/mdlint" = "0.3.24"
-"go:github.com/nnutter/git-review" = "0.8.1"
+hk = "latest"
+"github:nnutter/mdlint" = "latest"
+"go:github.com/nnutter/git-review" = "latest"
+"ubi:noirbizarre/git-tpl" = "latest"
 
 [tasks.all]
 description = "Run template lint and tests"
