@@ -1,6 +1,6 @@
 [tools]
 hk = "latest"
-"github:swanysimon/mdlint" = "latest"
+"github:nnutter/mdlint" = "latest"
 "go:github.com/nnutter/git-review" = "latest"
 "ubi:noirbizarre/git-tpl" = "latest"
 
