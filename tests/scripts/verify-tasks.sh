@@ -43,6 +43,27 @@ printf 'package sub\n\nfunc Hi() {}\n' > sub/sub.go
 printf 'package main\n\nimport "testing"\n\nfunc TestMain(t *testing.T) {}\n' > main_test.go
 printf '# demo\n' > README.md
 
+step "Markdown check reports formatting without changing files"
+printf '#  Title\n' > dirty.md
+cp dirty.md dirty.md.bak
+if mise run check-mdlint dirty.md; then
+  echo "check-mdlint did not report a diff" >&2
+  exit 1
+fi
+cmp -s dirty.md dirty.md.bak
+mise run fix-mdlint dirty.md
+mise run check-mdlint dirty.md
+printf '# Title\n\n### Skipped\n' > dirty.md
+cp dirty.md dirty.md.bak
+if mise run check-mdlint dirty.md; then
+  echo "check-mdlint did not report a lint violation" >&2
+  exit 1
+fi
+cmp -s dirty.md dirty.md.bak
+mise run fix-mdlint main.go
+mise run check-mdlint main.go
+rm -f dirty.md dirty.md.bak
+
 step "regression: single file to go fix"
 mise run fix-go-fix ./main.go
 
@@ -151,6 +172,17 @@ printf 'package  main\n\nfunc   F( ) {}\n' > fmt_me.go
 git add fmt_me.go main.go sub/sub.go main_test.go
 mise run pre-commit fmt_me.go main.go sub/sub.go main_test.go
 grep -qx 'func F() {}' fmt_me.go
+
+step "pre-commit hook formats staged Markdown"
+printf '#  Markdown\n' > staged.md
+printf '#  Untouched\n' > unstaged.md
+git add staged.md
+mise exec -- hk run pre-commit
+grep -qx '# Markdown' staged.md
+git show :staged.md | grep -qx '# Markdown'
+grep -qx '#  Untouched' unstaged.md
+git rm -q --cached staged.md
+rm -f staged.md unstaged.md
 
 step "check"
 # Runs every check-* task through the aggregate, so each one is exercised.
