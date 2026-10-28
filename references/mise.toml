@@ -22,22 +22,8 @@ description = "Run tests and generate coverage report"
 run = "go test -coverprofile=coverage.out -covermode=atomic ./... && go tool cover -func=coverage.out"
 
 [tasks.setup]
-description = "Install hk git hooks, replacing any Lefthook hook"
-run = '''
-#!/usr/bin/env bash
-set -eo pipefail
-# hk refuses to overwrite hooks it did not write, so remove the Lefthook
-# shim first. Lefthook's shim always mentions LEFTHOOK.
-hooks_dir=$(git rev-parse --git-path hooks)
-for hook in "$hooks_dir"/*; do
-  [ -f "$hook" ] || continue
-  if grep -q 'LEFTHOOK' "$hook"; then
-    rm -f "$hook"
-  fi
-done
-# Use the mise-pinned hk: a bare `hk` can resolve to another binary on PATH.
-mise exec -- hk install --mise
-'''
+description = "Install hk git hooks"
+run = "mise exec -- hk install --mise"
 
 [tasks.pre-commit]
 description = "Format staged files"

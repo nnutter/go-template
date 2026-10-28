@@ -49,7 +49,7 @@ class ReferenceTasksTest(unittest.TestCase):
             text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=check
         )
 
-    def test_setup_replaces_only_lefthook_and_invokes_hk(self):
+    def test_setup_preserves_existing_hooks_and_invokes_hk(self):
         hooks = self.project / ".git" / "hooks"
         (hooks / "pre-commit").write_text("#!/bin/sh\n# LEFTHOOK\n")
         (hooks / "commit-msg").write_text("#!/bin/sh\n# custom hook\n")
@@ -60,7 +60,7 @@ class ReferenceTasksTest(unittest.TestCase):
         mise.chmod(0o755)
         self.env["PATH"] = f"{bin_dir}{os.pathsep}{self.env['PATH']}"
         self.run_task("setup")
-        self.assertFalse((hooks / "pre-commit").exists())
+        self.assertEqual((hooks / "pre-commit").read_text(), "#!/bin/sh\n# LEFTHOOK\n")
         self.assertEqual((hooks / "commit-msg").read_text(), "#!/bin/sh\n# custom hook\n")
         self.assertEqual((self.project / "mise-args").read_text().splitlines(),
                          ["exec", "--", "hk", "install", "--mise"])

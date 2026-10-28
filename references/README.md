@@ -16,5 +16,5 @@ Configure the `APP_CLIENT_ID` repository variable and `APP_PRIVATE_KEY` secret f
 
 Keep GitHub Actions expressions such as `${{ github.ref }}` and hk placeholders such as `{{files}}` unchanged.
 Run `go mod tidy` to resolve the Go tool dependencies.
-Before running `mise run setup`, inspect existing Git hooks and obtain approval if setup would replace them.
-The setup task can remove Lefthook shims.
+Before running `mise run setup`, follow the Git hook migration procedure in `SKILL.md`.
+Inspect existing hooks and managers, preserve nonduplicate behavior, and obtain approval before removing or replacing them.

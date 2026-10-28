@@ -33,6 +33,29 @@ The agent MUST retain the template's development tools and their capabilities, e
 
 The agent MUST preserve the full baseline task coverage, including Go and Markdown formatting, static analysis, secret scanning, vulnerability checks, tests, coverage, setup, and `on-start` and `on-stop` hooks. For an existing repository, adapt commands to its structure without removing these capabilities.
 
+## Git hook migration
+
+Before installing `hk`, the agent MUST inspect the effective hooks directory and any configured `core.hooksPath`:
+
+```sh
+git config --show-origin --show-scope --get-all core.hooksPath
+git config --show-origin --show-scope --get-regexp '^hook\.'
+git rev-parse --git-path hooks
+```
+
+The first 2 commands can exit with status 1 when no matching configuration exists.
+Inspect active hooks, symlinks and their targets, and repository configuration and dependencies for existing managers such as Lefthook, Husky, pre-commit, and `hk`.
+The agent MUST identify existing hook behavior and preserve nonduplicate behavior in `hk` before removing its previous implementation.
+The agent MUST treat hooks as duplicates only when their behavior is demonstrably equivalent.
+If equivalence or preservation is uncertain, the agent MUST ask the user before removing either implementation.
+The agent MUST obtain approval before removing or replacing hooks or uninstalling a hook manager.
+
+For each manager to remove, consult the uninstall instructions for the installed version and inspect their effects before running them.
+For Lefthook, consult `lefthook uninstall --help` or its documentation and use its documented uninstall process after approval.
+Do not assume a manager's uninstall command affects only its own files or handles every hooks directory.
+After uninstalling, inspect the effective hooks directory again, resolve remaining conflicts, install `hk`, and verify that the preserved behavior runs.
+Report any behavior that could not be preserved.
+
 ## Conditional Homebrew publishing
 
 If the user requests Homebrew publishing, the agent MUST configure `.github/workflows/update-tap.yaml` from `references/.github/workflows/update-tap.yaml` using the agreed formula name, tap owner, and tap repository. The agent MUST identify the required GitHub App client ID and private key, tap access, existing formula, and `bin/update-formula` dependency. The agent MUST report any unmet prerequisite rather than claim publishing is ready. Preserve GitHub Actions expressions when adapting the reference.
@@ -41,4 +64,4 @@ If Homebrew publishing is not requested, the agent MUST NOT add the publishing w
 
 ## Verification
 
-For a repository with Go packages, run `mise run setup`, `mise run fix`, `mise run test`, `mise run check`, and `mise run ci-test` when their prerequisites are available. `mise run setup` changes Git hooks and can remove Lefthook shims; inspect the existing hooks and obtain approval before replacing them. Inspect changes produced by fix tasks. If the repository has no Go packages or a required tool or service is unavailable, report the commands not run and why. Do not claim CI or Homebrew publishing has been verified without exercising it.
+For a repository with Go packages, run `mise run setup`, `mise run fix`, `mise run test`, `mise run check`, and `mise run ci-test` when their prerequisites are available. `mise run setup` changes Git hooks; follow the Git hook migration procedure before running it. Inspect changes produced by fix tasks. If the repository has no Go packages or a required tool or service is unavailable, report the commands not run and why. Do not claim CI or Homebrew publishing has been verified without exercising it.

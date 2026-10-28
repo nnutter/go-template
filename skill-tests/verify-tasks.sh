@@ -90,14 +90,18 @@ main() {
     mise run "$task"
   done
 
-  step 'setup replaces Lefthook and installs hooks'
+  step 'setup preserves existing hooks'
   hooks_dir=$(git rev-parse --git-path hooks)
   mkdir -p "$hooks_dir"
   printf '#!/bin/sh\n# LEFTHOOK\n' > "$hooks_dir/pre-commit"
-  mise run setup
-  if grep -qs LEFTHOOK "$hooks_dir/pre-commit"; then
-    printf 'Lefthook hook survived setup\n' >&2; return 1
+  if ! mise run setup; then
+    printf 'setup refused an existing hook; checking that it was preserved\n'
   fi
+  if ! grep -qs LEFTHOOK "$hooks_dir/pre-commit"; then
+    printf 'setup changed the existing hook\n' >&2; return 1
+  fi
+  # Simulate an approved migration in this disposable repository.
+  rm "$hooks_dir/pre-commit"
   mise run setup
   mise tasks ls
   for task in all on-start on-stop check fix; do mise tasks deps "$task"; done
