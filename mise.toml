@@ -83,3 +83,7 @@ run = "mise run check-mdlint ${usage_staged_files}"
 [tasks.test]
 description = "Run offline reference tests"
 run = "python3 -B -m unittest discover -s skill-tests -v"
+
+[tasks.test-integration]
+description = "Exercise reference tasks in a disposable Go repository"
+run = "bash skill-tests/verify-tasks.sh"

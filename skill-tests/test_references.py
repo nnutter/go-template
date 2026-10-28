@@ -3,6 +3,7 @@
 
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import tomllib
@@ -10,6 +11,16 @@ import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
 REFERENCES = ROOT / "references"
+
+
+class SkillReferenceTest(unittest.TestCase):
+    def test_referenced_files_exist(self):
+        skill = (ROOT / "SKILL.md").read_text()
+        paths = re.findall(r"`(references/[^`]+)`", skill)
+        self.assertTrue(paths, "The skill must identify its reference files")
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertTrue((ROOT / path).is_file(), f"Missing reference: {path}")
 
 
 class ReferenceTasksTest(unittest.TestCase):

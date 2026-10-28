@@ -16,6 +16,8 @@ Reusable configuration examples are in [`references/`](references/README.md).
 ```sh
 mise run check
 mise run test
+# Uses a disposable repository and downloads Go tool dependencies.
+mise run test-integration
 ```
 
 The skill's requirements apply to target Go repositories, not to this skill repository itself.
