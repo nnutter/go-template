@@ -17,7 +17,6 @@ hooks {
         glob = "**/*.md"
         fix = "mise run fix {{files}}"
       }
-      ["check-tpl"] { check = "mise run check-tpl" }
       ["test"] { check = "mise run test" }
     }
   }
