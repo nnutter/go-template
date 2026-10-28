@@ -1,6 +1,7 @@
 # Reference files
 
-Copy these files to the matching paths in the target project.
+For a new project, copy the applicable files to the matching paths.
+For an existing project, inspect its configuration and merge the applicable examples without overwriting unrelated settings or changes.
 Replace these placeholders before you use the files:
 
 - `MODULE_PATH`: the Go module path.
@@ -15,4 +16,5 @@ Configure the `APP_CLIENT_ID` repository variable and `APP_PRIVATE_KEY` secret f
 
 Keep GitHub Actions expressions such as `${{ github.ref }}` and hk placeholders such as `{{files}}` unchanged.
 Run `go mod tidy` to resolve the Go tool dependencies.
-Run `mise run setup` to install the Git hooks.
+Before running `mise run setup`, inspect existing Git hooks and obtain approval if setup would replace them.
+The setup task can remove Lefthook shims.
