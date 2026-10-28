@@ -3,6 +3,7 @@ go = "latest"
 hk = "latest"
 "github:nnutter/mdlint" = "latest"
 "go:github.com/nnutter/git-review" = "latest"
+shellcheck = "latest"
 
 [tasks.all]
 description = "Run checks and tests"
@@ -70,6 +71,10 @@ mdlint format --check $md_files
 mdlint check --no-fix $md_files
 '''
 
+[tasks.check-shellcheck]
+description = "Check integration scripts with ShellCheck"
+run = "shellcheck skill-tests/verify-tasks.sh"
+
 [tasks.fix]
 description = "Format and fix Markdown"
 usage = 'arg "[staged_files]" var=#true'
@@ -78,7 +83,10 @@ run = "mise run fix-mdlint ${usage_staged_files}"
 [tasks.check]
 description = "Check Markdown formatting and lint without writing"
 usage = 'arg "[staged_files]" var=#true'
-run = "mise run check-mdlint ${usage_staged_files}"
+run = [
+  "mise run check-mdlint ${usage_staged_files}",
+  "mise run check-shellcheck",
+]
 
 [tasks.test]
 description = "Run offline reference tests"
