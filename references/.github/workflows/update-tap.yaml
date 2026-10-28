@@ -156,4 +156,3 @@ jobs:
             --merge \
             --auto \
             "$BRANCH_NAME"
-
