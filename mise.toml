@@ -5,6 +5,7 @@ hk = "latest"
 "go:github.com/nnutter/timber" = "latest"
 gitleaks = "latest"
 shellcheck = "latest"
+"pipx:skills-ref" = "0.1.1"
 
 [tasks.all]
 description = "Run checks and tests"
@@ -52,6 +53,7 @@ description = "Run checks without writing"
 usage = 'arg "[staged_files]" var=#true'
 run = [
   "mise run check-mdlint ${usage_staged_files}",
+  "agentskills validate skills/go-template",
   "hk check --all --step shellcheck",
   "hk check --all --step gitleaks",
 ]
