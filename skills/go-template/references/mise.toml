@@ -16,7 +16,7 @@ golangci-lint = "2.15.0"
 "go:github.com/nnutter/constable/cmd/constable" = "latest"
 "go:go.uber.org/nilaway/cmd/nilaway" = "latest"
 "github:nnutter/mdlint" = "latest"
-"go:github.com/nnutter/git-review" = "latest"
+"go:github.com/nnutter/timber" = "latest"
 
 [tasks.all]
 description = "Run fix, test, and check"

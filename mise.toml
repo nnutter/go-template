@@ -2,7 +2,7 @@
 go = "latest"
 hk = "latest"
 "github:nnutter/mdlint" = "latest"
-"go:github.com/nnutter/git-review" = "latest"
+"go:github.com/nnutter/timber" = "latest"
 shellcheck = "latest"
 
 [tasks.all]
