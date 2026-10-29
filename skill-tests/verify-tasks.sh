@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Exercise the reference hk entry points in disposable projects. Requires mise,
-# Git, network access, and the tools specified by references/mise.toml.
+# Git, network access, and the tools specified by skills/go-template/references/mise.toml.
 set -euo pipefail
 
 step() { printf '\n=== %s ===\n' "$*"; }
@@ -18,7 +18,7 @@ main() {
   export GOSUMDB=off
   export MISE_TRUSTED_CONFIG_PATHS="$project"
   cd -- "$project"
-  cp "$root/references/"{go.mod,mise.toml,hk.pkl,mdlint.toml,LICENSE} .
+  cp "$root/skills/go-template/references/"{go.mod,mise.toml,hk.pkl,mdlint.toml,LICENSE} .
   python3 -c 'from pathlib import Path; p=Path("go.mod"); s=p.read_text().replace("MODULE_PATH", "example.org/integration").replace("GO_VERSION", "1.26.0"); p.write_text(s)'
   git init -q
   git config user.name 'Integration Test'

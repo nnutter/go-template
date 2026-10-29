@@ -1,15 +1,17 @@
 # go-template
 
 An agent skill for standardizing Go repository development tools and CI/CD.
-The skill replaces the former `git-tpl` template.
 
 ## Use
 
-Install this repository as an agent skill, or make its directory available to your agent's skill loader.
+```sh
+npx skills add nnutter/go-template --skill go-template
+```
+
 Ask the agent to set up or standardize a Go repository with the `go-template` skill.
 
-Start with [`SKILL.md`](SKILL.md).
-Reusable configuration examples are in [`references/`](references/README.md).
+Start with [`skills/go-template/SKILL.md`](skills/go-template/SKILL.md).
+Reusable configuration examples are in [`skills/go-template/references/`](skills/go-template/references/README.md).
 
 ## Develop
 

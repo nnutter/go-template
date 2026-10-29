@@ -13,18 +13,19 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parent.parent
-REFERENCES = ROOT / "references"
+SKILL_DIR = ROOT / "skills" / "go-template"
+REFERENCES = SKILL_DIR / "references"
 FIXTURE = os.environ.get("GO_TEMPLATE_TEST_PROJECT")
 
 
 class SkillReferenceTest(unittest.TestCase):
 	def test_referenced_files_exist(self) -> None:
-		skill = (ROOT / "SKILL.md").read_text()
+		skill = (SKILL_DIR / "SKILL.md").read_text()
 		paths = re.findall(r"`(references/[^`]+)`", skill)
 		self.assertTrue(paths, "The skill must identify its reference files")
 		for path in paths:
 			with self.subTest(path=path):
-				self.assertTrue((ROOT / path).is_file(), f"Missing reference: {path}")
+				self.assertTrue((SKILL_DIR / path).is_file(), f"Missing reference: {path}")
 
 
 @unittest.skipUnless(FIXTURE, "Run skill-tests/verify-tasks.sh for hk integration tests")
