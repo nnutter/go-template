@@ -1,4 +1,17 @@
 amends "package://github.com/jdx/hk/releases/download/v2.8.0/hk@2.8.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.8.0/hk@2.8.0#/Builtins.pkl"
+
+steps {
+  ["markdown"] {
+    glob = "**/*.md"
+    check = "mdlint format --check {{files}} && mdlint check --no-fix {{files}}"
+    fix = "mdlint format {{files}} && mdlint check --fix {{files}}"
+  }
+  ["shellcheck"] = (Builtins.shellcheck) {
+    match_any = null
+    glob = "skill-tests/verify-tasks.sh"
+  }
+}
 
 hooks {
   ["commit-msg"] {
@@ -13,10 +26,6 @@ hooks {
     fix = true
     stage = true
     steps {
-      ["markdown"] {
-        glob = "**/*.md"
-        fix = "mise run fix {{files}}"
-      }
       ["test"] { check = "mise run test" }
     }
   }
