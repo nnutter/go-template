@@ -5,29 +5,24 @@ import "package://github.com/jdx/hk/releases/download/v2.8.0/hk@2.8.0#/Builtins.
 // Module-wide writers run only through the explicit fix-all hook. Scoped fixes
 // and pre-commit check these tools without changing unselected Go files.
 local goFixCheck = (Builtins.go_fix) {
+  depends = List("go_fumpt")
   check_diff = null
   fix = null
   check = "diff=$(go fix -diff ./...) || exit $?; printf '%s' \"$diff\"; test -z \"$diff\""
 }
 local tidyCheck = (Builtins.gomod_tidy) {
   stage = null
-  depends = List("go_fumpt")
+  depends = List("testifylint")
   check_diff = null
   fix = null
   check = "go mod tidy -diff"
 }
 
+// Serial steps run in definition order. Import repair is defined first so
+// it precedes the type-dependent `go fix` and analyzers: they fail on
+// uncompilable imports instead of repairing them.
 local commonSteps = new Mapping<String, Step> {
-  ["go_fix"] = goFixCheck
-  ["testifylint"] = (Builtins.golangci_lint) {
-    glob = List("**/*.go", "go.mod", "go.sum")
-    depends = List("go_fix")
-    check =
-      "golangci-lint run --no-config --enable-only testifylint --max-issues-per-linter 0 --max-same-issues 0 ./..."
-    fix = null
-  }
   ["go_imports"] = (Builtins.go_imports) {
-    depends = List("testifylint")
     // All command variants must use the same local import grouping.
     check_list_files = null
     check_diff = null
@@ -37,6 +32,14 @@ local commonSteps = new Mapping<String, Step> {
   }
   ["go_fumpt"] = (Builtins.go_fumpt) {
     depends = List("go_imports")
+  }
+  ["go_fix"] = goFixCheck
+  ["testifylint"] = (Builtins.golangci_lint) {
+    glob = List("**/*.go", "go.mod", "go.sum")
+    depends = List("go_fix")
+    check =
+      "golangci-lint run --no-config --enable-only testifylint --max-issues-per-linter 0 --max-same-issues 0 ./..."
+    fix = null
   }
   ["gomod_tidy"] = tidyCheck
   ["go_sec"] = (Builtins.go_sec) {
@@ -111,8 +114,10 @@ hooks {
     steps {
       // No file filter: scan every staged change, including arbitrary types,
       // binary files, deletions, and commits without Go or Markdown changes.
+      // The git-mode scan only sees text diffs, so staged binary bytes are
+      // checked out to a temporary directory and scanned explicitly.
       ["gitleaks"] = (Builtins.gitleaks) {
-        check = "gitleaks git --redact --pre-commit --staged"
+        check = "gitleaks git --redact --pre-commit --staged && tmp=$(mktemp -d) || exit $?; trap 'rm -rf \"$tmp\"' EXIT INT TERM; git diff --cached --name-only -z --diff-filter=ACMRT > \"$tmp/list\" || exit $?; git checkout-index -z --stdin --prefix=\"$tmp/tree/\" < \"$tmp/list\" || exit $?; mkdir -p \"$tmp/tree\" || exit $?; gitleaks dir --redact --verbose --no-banner \"$tmp/tree\" || exit $?"
       }
     }
   }
@@ -121,6 +126,7 @@ hooks {
     stage = false
     steps = (commonSteps) {
       ["go_fix"] = (Builtins.go_fix) {
+        depends = List("go_fumpt")
         check_diff = null
         exclusive = true
       }
@@ -130,7 +136,7 @@ hooks {
         exclusive = true
       }
       ["gomod_tidy"] = (Builtins.gomod_tidy) {
-        depends = List("go_fumpt")
+        depends = List("testifylint")
         exclusive = true
       }
     }

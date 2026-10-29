@@ -161,6 +161,28 @@ class HkEntryPointTest(unittest.TestCase):
 		self.assertEqual(set(self.run_command("git", "diff", "--cached", "--name-only").stdout.splitlines()),
 		                 {"staged.md", *formats})
 
+	def test_full_fix_repairs_unused_imports_before_analysis(self) -> None:
+		path = self.project / "imports.go"
+		path.write_text('package main\n\nimport "fmt"\n\nfunc Unused() {}\n')
+		self.run_command("mise", "run", "fix")
+		self.assertNotIn('"fmt"', path.read_text())
+		self.run_command("mise", "run", "check")
+
+	def test_pre_commit_blocks_secret_in_binary_staged_bytes(self) -> None:
+		self.run_command("mise", "run", "setup")
+		control = self.project / "control.txt"
+		control.write_text("No credentials here.\n")
+		self.run_command("git", "add", control.name)
+		self.run_command("git", "commit", "-qm", "Safe control")
+		head = self.run_command("git", "rev-parse", "HEAD").stdout
+		path = self.project / "secret.dat"
+		path.write_bytes(b"PREFIX\x00awsToken = AKIALALEMEL33243OLIA\n")
+		self.run_command("git", "add", path.name)
+		result = self.run_command("git", "commit", "-qm", "Reject binary credential", check=False)
+		self.assertNotEqual(result.returncode, 0, result.stdout)
+		self.assertIn("gitleaks", result.stdout.lower())
+		self.assertEqual(self.run_command("git", "rev-parse", "HEAD").stdout, head)
+
 	def test_setup_preserves_existing_hooks(self) -> None:
 		hooks = self.project / ".git" / "hooks"
 		existing = {"pre-commit": "#!/bin/sh\n# LEFTHOOK\n", "commit-msg": "#!/bin/sh\n# custom hook\n"}
