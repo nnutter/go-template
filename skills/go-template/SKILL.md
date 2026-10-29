@@ -1,6 +1,7 @@
 ---
-
-## name: go-template description: Set up or adopt the Go repository tooling baseline, mise tasks, Git hooks, and GitHub CI. Use when creating a Go repository or bringing an existing one onto this baseline. Configure Homebrew publishing only when requested.
+name: go-template
+description: Set up or adopt the Go repository tooling baseline, mise tasks, Git hooks, and GitHub CI. Use when creating a Go repository or bringing an existing one onto this baseline. Configure Homebrew publishing only when requested.
+---
 
 # Go repository tooling
 
