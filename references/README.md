@@ -15,6 +15,10 @@ The tap must provide `bin/update-formula`.
 Configure the `APP_CLIENT_ID` repository variable and `APP_PRIVATE_KEY` secret for a GitHub App that can write to the tap and open pull requests.
 
 Keep GitHub Actions expressions such as `${{ github.ref }}` and hk placeholders such as `{{files}}` unchanged.
-Run `go mod tidy` to resolve the Go tool dependencies.
+Run `mise install` to install the tools, and run `go mod tidy` to resolve the project's Go dependencies.
+Use `mise run check` for non-writing checks and `mise run fix` to apply fixes across the repository.
+A full fix can change files across a Go module; inspect the changes before committing.
+`golangci-lint` runs only the required `testifylint` analyzer because its newer Go analysis dependencies support the current Go toolchain.
+Its generated-file and `nolint` handling can differ from standalone `testifylint`.
 Before running `mise run setup`, follow the Git hook migration procedure in `SKILL.md`.
 Inspect existing hooks and managers, preserve nonduplicate behavior, and obtain approval before removing or replacing them.

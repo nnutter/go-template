@@ -24,14 +24,23 @@ If a required reference is unavailable, the agent MUST report the missing file a
 
 ## Required baseline
 
-The agent MUST retain the template's development tools and their capabilities, except `git-tpl`:
+The agent MUST configure `mise` to install the required tools and `hk` to run formatters and linters.
+The agent MUST use suitable `hk` built-ins when available and MUST use custom `hk` steps for the remaining required tools.
+Use `references/mise.toml` and `references/hk.pkl` as the configuration references.
 
-- In `mise.toml`, configure Go, `hk`, `mdlint`, and `git-review`, and the baseline development, fix, check, and agent-hook tasks. Use `references/mise.toml` as the task reference.
-- In `go.mod`, configure the Go tool dependencies in `references/go.mod`: testifylint, go-check-sumtype, errcheck, constable, gosec, gitleaks, nilaway, goimports, govulncheck, staticcheck, and gofumpt. Preserve the compatibility constraint documented there when it remains necessary. Resolve dependencies with `go mod tidy`.
-- Configure the commit-message and pre-commit hooks from `references/hk.pkl`. Keep the staged secret scan and formatting behavior. Configure Markdown linting from `references/mdlint.toml`.
-- Configure GitHub CI from `references/.github/workflows/ci.yaml`: run the fix task, race-enabled CI tests, and govulncheck on pull requests and manual dispatch. Preserve its least-privilege permissions and pinned actions. Check current action versions before changing pins.
+- Go: configure `go-fumpt`, `go-imports`, `go-sec`, `go-vet`, `go-vuln-check`, `go-fix`, `staticcheck`, and `gomod-tidy`.
+- Pkl: configure `pkl` and `pkl-format`.
+- TOML: configure `tombi` and `tombi-format`.
+- YAML: configure `yamlfmt`.
+- Preserve the existing `testifylint`, `go-check-sumtype`, `errcheck`, `constable`, `gitleaks`, `nilaway`, Markdown linting, and Change-Id capabilities.
+- Configure GitHub CI from `references/.github/workflows/ci.yaml` and run the same checks in CI as in the local workflow. Preserve its least-privilege permissions and pinned actions. Check current action versions before changing pins.
 
-The agent MUST preserve the full baseline task coverage, including Go and Markdown formatting, static analysis, secret scanning, vulnerability checks, tests, coverage, setup, and `on-start` and `on-stop` hooks. For an existing repository, adapt commands to its structure without removing these capabilities.
+The agent MUST preserve tests, coverage, setup, and the `on-start` and `on-stop` hooks.
+The pre-commit hook MUST scan staged content for secrets regardless of file type.
+For an existing repository, adapt commands to its structure without removing these capabilities.
+Some `hk` Go built-ins operate on a whole module even when given selected files.
+The agent MUST account for these effects and MUST NOT silently overwrite unrelated or unstaged changes.
+The `go-fix` built-in requires Go 1.26 or later; use a compatible toolchain without silently changing an existing module's minimum Go version.
 
 ## Git hook migration
 
