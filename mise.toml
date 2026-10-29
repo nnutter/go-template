@@ -3,6 +3,7 @@ go = "latest"
 hk = "latest"
 "github:nnutter/mdlint" = "latest"
 "go:github.com/nnutter/timber" = "latest"
+gitleaks = "latest"
 shellcheck = "latest"
 
 [tasks.all]
@@ -52,6 +53,7 @@ usage = 'arg "[staged_files]" var=#true'
 run = [
   "mise run check-mdlint ${usage_staged_files}",
   "hk check --all --step shellcheck",
+  "hk check --all --step gitleaks",
 ]
 
 [tasks.test]

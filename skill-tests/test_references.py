@@ -176,7 +176,9 @@ class HkEntryPointTest(unittest.TestCase):
 		self.run_command("git", "commit", "-qm", "Safe control")
 		head = self.run_command("git", "rev-parse", "HEAD").stdout
 		path = self.project / "secret.dat"
-		path.write_bytes(b"PREFIX\x00awsToken = AKIALALEMEL33243OLIA\n")
+		# Split so this source file carries no detectable secret itself.
+		key = "AKIA" + "Q7M3XNB5TRW2KHLD"
+		path.write_bytes(b"PREFIX\x00awsToken = " + key.encode() + b"\n")
 		self.run_command("git", "add", path.name)
 		result = self.run_command("git", "commit", "-qm", "Reject binary credential", check=False)
 		self.assertNotEqual(result.returncode, 0, result.stdout)

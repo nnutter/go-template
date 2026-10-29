@@ -11,6 +11,7 @@ steps {
     match_any = null
     glob = "skill-tests/verify-tasks.sh"
   }
+  ["gitleaks"] = Builtins.gitleaks
 }
 
 hooks {
