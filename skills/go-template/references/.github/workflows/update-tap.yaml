@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to publish to {{ tap_owner }}/{{ tap_repository }}
+        description: Release tag to publish to TAP_OWNER_PLACEHOLDER/TAP_REPOSITORY_PLACEHOLDER
         required: true
         type: string
 
@@ -22,11 +22,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      FORMULA_NAME: {{ formula_name }}
-      TAP_OWNER: {{ tap_owner }}
-      TAP_REPOSITORY: {{ tap_repository }}
+      FORMULA_NAME: FORMULA_NAME_PLACEHOLDER
+      TAP_OWNER: TAP_OWNER_PLACEHOLDER
+      TAP_REPOSITORY: TAP_REPOSITORY_PLACEHOLDER
     steps:
-      {% raw %}- name: Resolve release tag
+      - name: Resolve release tag
         id: release
         env:
           EVENT_TAG: ${{ github.event.release.tag_name }}
@@ -156,4 +156,3 @@ jobs:
             --merge \
             --auto \
             "$BRANCH_NAME"
-{%- endraw %}

@@ -1,56 +1,25 @@
 # go-template
 
-A [git-tpl](https://noirbizarre.github.io/git-tpl/) template for Go apps.
-Only `template/` is rendered into projects; this README, `tests/`, and the
-Git history are the template author's side.
-
-## What projects get
-
-| File | How |
-| --- | --- |
-| `mise.toml` | Templated (`go` version) — fix, test, and check tasks plus `on-start` and `on-stop` agent hooks |
-| `hk.pkl` | Verbatim — pre-commit formatting hook |
-| `go.mod` | Templated (`module`, `go`) — tool dependencies only |
-| `.github/workflows/ci.yaml` | Verbatim — fix, ci-test, govulncheck |
-| `LICENSE` | Templated (MIT holder + year) |
-| `.github/workflows/update-tap.yaml` | Optional Homebrew workflow; Actions `${{ }}` stays intact via `{% raw %}` |
+An agent skill for standardizing Go repository development tools and CI/CD.
 
 ## Use
 
 ```sh
-# New project
-git tpl init git@github.com:nnutter/go-template my-app --init
-
-# Existing project (adopts git-tpl, merges by content)
-cd my-app
-git tpl init git@github.com:nnutter/go-template
-
-# After init in the new project
-go mod tidy
-mise run setup
+npx skills add nnutter/go-template --skill go-template
 ```
 
-```sh
-# Later, when this template moves on
-mise run refresh-template
-# or step by step:
-git tpl status
-git tpl update
-git tpl diff
-git tpl merge
-```
+Ask the agent to set up or standardize a Go repository with the `go-template` skill.
+
+Start with [`skills/go-template/SKILL.md`](skills/go-template/SKILL.md).
+Reusable configuration examples are in [`skills/go-template/references/`](skills/go-template/references/README.md).
 
 ## Develop
 
 ```sh
-mise run check  # manifest + rendering diagnostics
-mise run test   # tests/*.toml cases
+mise run check
+mise run test
+# Uses a disposable repository and downloads Go tool dependencies.
+mise run test-integration
 ```
 
-## Publish
-
-```sh
-git remote add origin git@github.com:nnutter/go-template
-git push -u origin main
-gh repo edit --add-topic git-tpl
-```
+The skill's requirements apply to target Go repositories, not to this skill repository itself.

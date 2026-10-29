@@ -1,30 +1,18 @@
 [tools]
+go = "latest"
 hk = "latest"
 "github:nnutter/mdlint" = "latest"
-"go:github.com/nnutter/git-review" = "latest"
-"ubi:noirbizarre/git-tpl" = "latest"
+"go:github.com/nnutter/timber" = "latest"
+gitleaks = "latest"
+shellcheck = "latest"
 
 [tasks.all]
-description = "Run template lint and tests"
+description = "Run checks and tests"
 depends = ["check", "test"]
 
 [tasks.setup]
-description = "Install hk git hooks, replacing any Lefthook hook"
-run = '''
-#!/usr/bin/env bash
-set -eo pipefail
-# hk refuses to overwrite hooks it did not write, so remove the Lefthook
-# shim first. Lefthook's shim always mentions LEFTHOOK.
-hooks_dir=$(git rev-parse --git-path hooks)
-for hook in "$hooks_dir"/*; do
-  [ -f "$hook" ] || continue
-  if grep -q 'LEFTHOOK' "$hook"; then
-    rm -f "$hook"
-  fi
-done
-# Use the mise-pinned hk: a bare `hk` can resolve to another binary on PATH.
-mise exec -- hk install --mise
-'''
+description = "Install hk git hooks"
+run = "mise exec -- hk install --mise"
 
 [tasks.fix-mdlint]
 description = "Format and fix Markdown"
@@ -33,19 +21,11 @@ run = '''
 #!/usr/bin/env bash
 set -eo pipefail
 if [ -z "${usage_staged_files:-}" ]; then
-  mdlint format
-  mdlint check --fix
-  exit 0
+  hk fix --all --step markdown
+else
+  # shellcheck disable=SC2086
+  hk fix --step markdown -- ${usage_staged_files}
 fi
-md_files=""
-for f in ${usage_staged_files}; do
-  case "$f" in *.md) md_files="$md_files $f" ;; esac
-done
-[ -z "$md_files" ] && exit 0
-# shellcheck disable=SC2086
-mdlint format $md_files
-# shellcheck disable=SC2086
-mdlint check --fix $md_files
 '''
 
 [tasks.check-mdlint]
@@ -55,27 +35,12 @@ run = '''
 #!/usr/bin/env bash
 set -eo pipefail
 if [ -z "${usage_staged_files:-}" ]; then
-  mdlint format --check
-  mdlint check --no-fix
-  exit 0
+  hk check --all --step markdown
+else
+  # shellcheck disable=SC2086
+  hk check --step markdown -- ${usage_staged_files}
 fi
-md_files=""
-for f in ${usage_staged_files}; do
-  case "$f" in *.md) md_files="$md_files $f" ;; esac
-done
-[ -z "$md_files" ] && exit 0
-# shellcheck disable=SC2086
-mdlint format --check $md_files
-# shellcheck disable=SC2086
-mdlint check --no-fix $md_files
 '''
-
-[tasks.check-tpl]
-description = "Lint the template (manifest and rendering diagnostics)"
-usage = 'arg "[staged_files]" var=#true'
-# Template lint is repo-wide; staged files are accepted so the check
-# aggregate can forward them, but they are intentionally ignored.
-run = "git tpl lint"
 
 [tasks.fix]
 description = "Format and fix Markdown"
@@ -83,13 +48,18 @@ usage = 'arg "[staged_files]" var=#true'
 run = "mise run fix-mdlint ${usage_staged_files}"
 
 [tasks.check]
-description = "Check Markdown formatting and lint without writing"
+description = "Run checks without writing"
 usage = 'arg "[staged_files]" var=#true'
 run = [
   "mise run check-mdlint ${usage_staged_files}",
-  "mise run check-tpl ${usage_staged_files}",
+  "hk check --all --step shellcheck",
+  "hk check --all --step gitleaks",
 ]
 
 [tasks.test]
-description = "Run the template test suite"
-run = "git tpl test"
+description = "Run offline reference tests"
+run = "python3 -B -m unittest discover -s skill-tests -v"
+
+[tasks.test-integration]
+description = "Exercise reference tasks in a disposable Go repository"
+run = "bash skill-tests/verify-tasks.sh"
